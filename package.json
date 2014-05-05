@@ -1,0 +1,31 @@
+{
+  "name": "MSC",
+  "description": "A movie script classifier.",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Timothy Kendall",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timkendall/msc.git"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.2.x"
+  },
+  "scripts": {},
+  "dependencies": {
+    "WNdb": "^3.1.1",
+    "async": "^0.8.0",
+    "brain": "^0.6.3",
+    "cheerio": "latest",
+    "classifier": "^0.1.0",
+    "deferred": "^0.7.1",
+    "graceful-fs": "^2.0.3",
+    "lodash": "latest",
+    "minimist": "0.0.8",
+    "mkdirp": "^0.4.0",
+    "natural": "^0.1.27",
+    "string": "^1.8.1"
+  },
+  "devDependencies": {}
+}
