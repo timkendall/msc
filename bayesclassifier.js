@@ -14,13 +14,13 @@ var argv = require('minimist')(process.argv.slice(2));
 
 var bayes = new classifier.Bayesian({
   thresholds: {
-    Action: 1,
-    Horror: 1,
-    Musical: 1,
-    Drama: 1,
-    Comedy: 3,
-    'Sci-Fi': 1,
-    Mystery: 1
+    'Action': 4,
+    'Horror': 1,
+    'Musical': 1,
+    'Drama': 4,
+    'Comedy': 6,
+    'Sci-Fi': 3,
+    'Mystery': 1
   }
 });
 
@@ -30,7 +30,7 @@ var bayes = new classifier.Bayesian({
  */
 
 // Read in our dataset
-fs.readFile('/training_data/training_bayes_fixed.json', 'utf8', function (err, data) {
+fs.readFile('training_data/training_bayes_fixed.json', 'utf8', function (err, data) {
     if (err) throw err;
 
     // Parse into JSON
@@ -39,7 +39,7 @@ fs.readFile('/training_data/training_bayes_fixed.json', 'utf8', function (err, d
     bayes.fromJSON(json);
 
     // Run a test script through classifier
-    fs.readFile('/Users/Me/Desktop/Scripts/Musical/les-miserables.txt', 'utf8', function (err, data) {
+    fs.readFile('/Users/Me/Desktop/Scripts/Drama/a-few-good-men.txt', 'utf8', function (err, data) {
       if (err) throw err;
 
       var genre = bayes.classify(data);
@@ -53,15 +53,15 @@ fs.readFile('/training_data/training_bayes_fixed.json', 'utf8', function (err, d
 
 // Gather training data and train
 /*
-dive('/Users/Me/Desktop/Scripts/Musical', '.txt', trainScript, function (functions) {
+dive('/Users/Me/Desktop/Scripts/', '.txt', trainScript, function (functions) {
   console.log('hey');
   exportTrainingData(bayes);
-});*/
-
+});
+*/
 // Save our training data
 function exportTrainingData (classifier) {
   var json = classifier.toJSON();
-  var outputFilename = 'training_logistic.json';
+  var outputFilename = 'training_data/training_bayes_thresholds.json';
 
   fs.writeFile(outputFilename, JSON.stringify(json, null, 2), function (err) {
     if (err) console.log(err);
@@ -126,7 +126,6 @@ function trainScript (error, file) {
   });*/
   var genre = path.basename(path.join(file, '../'));
   var script = fs.readFileSync(file).toString();
-  //bayes.train(script, genre);
-  classifier.addDocument(script, genre);
+  bayes.train(script, genre);
   console.log('Added');
 }
