@@ -26,20 +26,57 @@ var ignore = [
   'the', 'and', 'a', 'that', 'I', 'it', 'not', 'he', 'as', 'you',
   'this', 'but', 'his', 'they', 'her', 'she', 'or', 'an', 'will', 'my',
   'one', 'all', 'would', 'there', 'their' ];
+  
+var genreCounter = {
+  "Action": 0,
+  "Horror": 0,
+  "Comedy": 0,
+  "Drama": 0
+};
 
-fs.readFile('/Users/Me/Desktop/Scripts/Drama/a-few-good-men.txt', 'utf8', function (err, contents) {
+var wordOccurences;
+
+fs.readFile('/Users/markjackson/development/ai/Scripts/Drama/lord-of-war.txt', 'utf8', function (err, contents) {
   if (err) throw err;
 
   // Get object of word occurences
-  var wordOccurences = countWordOccurrences(ignore, contents);
+  wordOccurences = countWordOccurrences(ignore, contents);
   // Parse into pretty JSON
-  var json = JSON.stringify(wordOccurences, null, 2);
+  // var json = JSON.stringify(wordOccurences, null, 2);
   // Save it
-  fs.writeFile('word_count.json', json, function (err) {
-    if (err) console.log(err);
-    else  console.log('JSON saved');
+  // fs.writeFile('word_count.json', json, function (err) {
+  //   if (err) console.log(err);
+  //   else  console.log('JSON saved');
   });
 
+  // Read in our dataset
+fs.readFile('training_data/training_bayes_thresholds.json', 'utf8', function (err, data) {
+    if (err) throw err;
+
+    // Parse into JSON
+    var json = JSON.parse(data);
+    // Words json
+    var words = json.words;
+    for(var word in wordOccurences){
+      if(words[word]){
+        var highestGenre = 'Action';
+        var genre = words[word];
+        for(var count in genre){
+          if(genre[count] > genre[highestGenre]){
+            highestGenre = count;
+          }
+        }
+        ++genreCounter[highestGenre];
+      }
+    }
+    var picked = 'Action';
+    for(var highest in genreCounter){
+      if(genreCounter[highest] > genreCounter[picked]){
+        picked = highest;
+      }
+    }
+    console.log("Classified: " + picked);
+    
 });
 
 // Take in a script, count word occurences
