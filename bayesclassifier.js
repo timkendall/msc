@@ -14,12 +14,12 @@ var argv = require('minimist')(process.argv.slice(2));
 
 var bayes = new classifier.Bayesian({
   thresholds: {
-    'Action': 4,
+    'Action': 1,
     'Horror': 1,
     'Musical': 1,
-    'Drama': 4,
-    'Comedy': 6,
-    'Sci-Fi': 3,
+    'Drama': 1,
+    'Comedy': 1,
+    'Sci-Fi': 1,
     'Mystery': 1
   }
 });
@@ -30,7 +30,7 @@ var bayes = new classifier.Bayesian({
  */
 
 // Read in our dataset
-fs.readFile('training_data/training_bayes_fixed.json', 'utf8', function (err, data) {
+fs.readFile('training_data/training_bayes_thresholds.json', 'utf8', function (err, data) {
     if (err) throw err;
 
     // Parse into JSON
@@ -39,7 +39,7 @@ fs.readFile('training_data/training_bayes_fixed.json', 'utf8', function (err, da
     bayes.fromJSON(json);
 
     // Run a test script through classifier
-    fs.readFile('/Users/Me/Desktop/Scripts/Drama/a-few-good-men.txt', 'utf8', function (err, data) {
+    fs.readFile('/Users/markjackson/Development/AI/Scripts/Drama/frozen.txt', 'utf8', function (err, data) {
       if (err) throw err;
 
       var genre = bayes.classify(data);
@@ -52,12 +52,12 @@ fs.readFile('training_data/training_bayes_fixed.json', 'utf8', function (err, da
  */
 
 // Gather training data and train
-/*
-dive('/Users/Me/Desktop/Scripts/', '.txt', trainScript, function (functions) {
-  console.log('hey');
-  exportTrainingData(bayes);
-});
-*/
+
+// dive('/Users/markjackson/Development/AI/Scripts/', '.txt', trainScript, function (functions) {
+//   console.log('hey');
+//   exportTrainingData(bayes);
+// });
+
 // Save our training data
 function exportTrainingData (classifier) {
   var json = classifier.toJSON();
