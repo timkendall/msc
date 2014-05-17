@@ -27,6 +27,39 @@ var ignore = [
   'this', 'but', 'his', 'they', 'her', 'she', 'or', 'an', 'will', 'my',
   'one', 'all', 'would', 'there', 'their' ];
 
+// Modify trainign data to include total words in each genre
+fs.readFile('training_data/training_bayes.json', function (err, contents) {
+  if (err) throw err;
+
+  // Parse training object
+  var training = JSON.parse(contents);
+  training.totals = {};
+
+  var genres = [
+      'Action', 'Comedy', 'Drama', 'Horror', 'Musical'
+  ];
+
+  // Add up words for each genre
+  for (var genre in training.cats) {
+     var total = 0;
+     // Loop through words
+     for (var word in training.words) {
+        total += training.words[word][genre] || 0;
+        console.log('Word: ' +training.words[word][genre] );
+     }
+     // Add total of this genre to our training object
+     training.totals[genre] = total;
+  };
+
+  var json = JSON.stringify(training, null, 2);
+  fs.writeFile('training_data/training.json', json, function (err) {
+    if (err) console.log(err);
+    else  console.log('JSON saved');
+  });
+});
+
+// Count word occurences in a script
+/*
 fs.readFile('/Users/Me/Desktop/Scripts/Drama/a-few-good-men.txt', 'utf8', function (err, contents) {
   if (err) throw err;
 
@@ -40,7 +73,7 @@ fs.readFile('/Users/Me/Desktop/Scripts/Drama/a-few-good-men.txt', 'utf8', functi
     else  console.log('JSON saved');
   });
 
-});
+});*/
 
 // Take in a script, count word occurences
 function countWordOccurrences (ignore, string) {
@@ -62,3 +95,5 @@ function countWordOccurrences (ignore, string) {
 
   return wordOccurences;
 };
+
+
