@@ -52,10 +52,11 @@ function countWordOccurrences (ignore, string) {
   // Keep synchronous
   for (var i = 0; i < tokens.length; ++i) {
     var word = tokens[i];
-    // Ignore words
+    // Ignore words, using ugly _.filter to match case-insensitive
     if ((_.filter(ignore, function (token) { return token.toLowerCase() === word.toLowerCase(); })).length !== 0) continue;
-    // Add count
+    // Add word field if doesn't exist
     if(!wordOccurences[word]) wordOccurences[word] = 0;
+    // Count
     wordOccurences[word] += 1;
   }
 
