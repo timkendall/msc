@@ -26,57 +26,111 @@ var ignore = [
   'the', 'and', 'a', 'that', 'I', 'it', 'not', 'he', 'as', 'you',
   'this', 'but', 'his', 'they', 'her', 'she', 'or', 'an', 'will', 'my',
   'one', 'all', 'would', 'there', 'their' ];
-  
-var genreCounter = {
-  "Action": 0,
-  "Horror": 0,
-  "Comedy": 0,
-  "Drama": 0
-};
 
-var wordOccurences;
-
-fs.readFile('/Users/markjackson/development/ai/Scripts/Drama/lord-of-war.txt', 'utf8', function (err, contents) {
+// Modify trainign data to include total words in each genre
+fs.readFile('training_data/training_bayes_thresholds.json', function (err, contents) {
   if (err) throw err;
 
-  // Get object of word occurences
-  wordOccurences = countWordOccurrences(ignore, contents);
-  // Parse into pretty JSON
-  // var json = JSON.stringify(wordOccurences, null, 2);
-  // Save it
-  // fs.writeFile('word_count.json', json, function (err) {
-  //   if (err) console.log(err);
-  //   else  console.log('JSON saved');
+  // Parse training object
+  var training = JSON.parse(contents);
+  training.totals = {};
+
+  var genres = [
+      'Action', 'Comedy', 'Drama', 'Horror', 'Musical'
+  ];
+
+  // Add up words for each genre
+  for (var genre in training.cats) {
+     var total = 0;
+     // Loop through words
+     for (var word in training.words) {
+        total += training.words[word][genre] || 0;
+        // console.log('Word: ' +training.words[word][genre] );
+     }
+     // Add total of this genre to our training object
+     training.totals[genre] = total;
+  };
+
+  var json = JSON.stringify(training, null, 2);
+  fs.writeFile('./training_data/training.json', json, function (err) {
+    if (err) console.log(err);
+    else  console.log('JSON saved');
   });
 
-  // Read in our dataset
-fs.readFile('training_data/training_bayes_thresholds.json', 'utf8', function (err, data) {
+  // console.log(training);
+
+  var uniqueWordCount = 0;
+  for(var key in training.words){
+    ++uniqueWordCount;
+  }
+
+  console.log(uniqueWordCount);
+
+  var logProb = {
+    'Action': {},
+    'Horror': {},
+    'Musical': {},
+    'Drama': {},
+    'Comedy': {}
+  };
+
+  for(var word in training.words){
+    for(var genre in training.words[word]){
+      var numerator = training.words[word][genre] + 1;
+      var denominator = training.totals[genre] + uniqueWordCount;
+      var prob = Math.log(numerator/denominator);
+      logProb[genre][word] = -1*prob;
+    }
+  }
+
+  // console.log(logProb);
+
+  // Count word occurences in a script
+  fs.readFile('/Users/markjackson/development/ai/Scripts/Drama/high-fidelity.txt', 'utf8', function (err, contents) {
     if (err) throw err;
 
-    // Parse into JSON
-    var json = JSON.parse(data);
-    // Words json
-    var words = json.words;
+    // Get object of word occurences
+    var wordOccurences = countWordOccurrences(ignore, contents);
+
+    var finalGenreProb = {
+      'Action': 0,
+      'Horror': 0,
+      'Musical': 0,
+      'Drama': 0,
+      'Comedy': 0
+    };
+
     for(var word in wordOccurences){
-      if(words[word]){
-        var highestGenre = 'Action';
-        var genre = words[word];
-        for(var count in genre){
-          if(genre[count] > genre[highestGenre]){
-            highestGenre = count;
-          }
+      var wordCount = wordOccurences[word];
+      if(training.words[word]){
+        for(var genre in training.words[word]){
+          finalGenreProb[genre] += logProb[genre][word];
         }
-        ++genreCounter[highestGenre];
+      }else{
+        for(var key in finalGenreProb){
+          ++finalGenreProb[key];
+        }
       }
     }
-    var picked = 'Action';
-    for(var highest in genreCounter){
-      if(genreCounter[highest] > genreCounter[picked]){
-        picked = highest;
+
+    for(var prob in finalGenreProb){
+      finalGenreProb[prob] *= 0.5;
+    }
+
+    var highest = finalGenreProb['Action'];
+    var classifiedGenre = 'Action';
+    for(var prob in finalGenreProb){
+      if(finalGenreProb[prob] > highest){
+        highest = finalGenreProb[prob];
+        classifiedGenre = prob;
       }
     }
-    console.log("Classified: " + picked);
-    
+
+    console.log(finalGenreProb);
+    console.log('Classified: ' + classifiedGenre);
+
+
+  });
 });
 
 // Take in a script, count word occurences
@@ -99,3 +153,5 @@ function countWordOccurrences (ignore, string) {
 
   return wordOccurences;
 };
+
+
